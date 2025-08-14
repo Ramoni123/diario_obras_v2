@@ -1,0 +1,448 @@
+/* src/App.css - Estilos atualizados para AdicionarRelatorio */
+
+/* Container principal do formulário */
+.adicionar-relatorio {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+/* Header com título e botão voltar */
+.header-adicionar-relatorio {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.btn-voltar-seta {
+  background: none;
+  border: none;
+  font-size: 2em;
+  margin-right: 15px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s ease;
+}
+
+.btn-voltar-seta:hover {
+  color: #007bff;
+}
+
+/* Título do formulário */
+.form-title {
+  font-size: 1.8em;
+  color: #333;
+  margin: 0;
+}
+
+/* Grupos de campos - cada um em um card separado */
+.form-group {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Labels dos campos */
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+  font-size: 1.1em;
+}
+
+/* Controles de entrada */
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  font-size: 1em;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  outline: none;
+}
+
+/* Textarea específico */
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Select múltiplo */
+select[multiple] {
+  min-height: 100px;
+}
+
+/* Contador de caracteres */
+.char-counter {
+  float: right;
+  font-size: 0.9em;
+  color: #666;
+  font-weight: normal;
+}
+
+/* Grupo de checkboxes */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-label:hover {
+  background-color: #f8f9fa;
+}
+
+.checkbox-label input {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* Botões de ação */
+.btn-adicionar {
+  margin-left: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.btn-adicionar:hover {
+  background-color: #0056b3;
+}
+
+.btn-salvar {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.btn-salvar:hover {
+  background-color: #1e7e34;
+}
+
+.btn-salvar:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Formulário de cadastro rápido */
+.form-cadastro-rapido {
+  margin: 15px 0;
+  padding: 15px;
+  border: 1px dashed #007bff;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.form-cadastro-rapido input {
+  flex: 1;
+  min-width: 150px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Botão de submit principal */
+.submit-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.submit-button:hover {
+  background-color: #1e7e34;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Mensagens de erro */
+.error-message {
+  color: #dc3545;
+  font-size: 0.9em;
+  display: block;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+/* Container de preview das fotos */
+.fotos-preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Itens individuais de preview */
+.foto-preview-item {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.foto-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Botão de remover foto */
+.remover-foto-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.remover-foto-btn:hover {
+  background-color: rgba(220, 53, 69, 1);
+}
+
+/* Texto de ajuda */
+small {
+  display: block;
+  margin-top: 8px;
+  color: #6c757d;
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+/* Input de arquivo */
+input[type="file"].form-control {
+  padding: 8px;
+  border: 2px dashed #ddd;
+  background-color: #fafafa;
+}
+
+input[type="file"].form-control:hover {
+  border-color: #007bff;
+  background-color: #f8f9fa;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .adicionar-relatorio {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .form-cadastro-rapido {
+    flex-direction: column;
+  }
+  
+  .form-cadastro-rapido input {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .fotos-preview-container {
+    justify-content: center;
+  }
+  
+  .foto-preview-item {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Estilos para o header principal (mantido do original) */
+.main-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo-placeholder {
+  width: 150px;
+  height: 40px;
+  border-radius: 4px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: #333333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.nav-link:hover {
+  color: #2c3e50;
+  background-color: #f5f5f5;
+}
+
+.logout {
+  background-color: #e74c3c;
+  color: white !important;
+  border: none;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background-color: #c0392b;
+}
+
+.quantidade-input {
+  max-width: 80px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  justify-content: space-between;
+}
+
+.checkbox-label span {
+  margin-left: auto;
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* Estilos para a lista de equipamentos no formulário */
+.checkbox-label-equipamento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label-equipamento:hover {
+  background-color: #f9f9f9;
+}
+
+.checkbox-info {
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-info input {
+  margin-right: 12px;
+  width: 18px;
+  height: 18px;
+}
+
+.checkbox-quantidade {
+  font-style: italic;
+  color: #555;
+  font-size: 0.9em;
+}
+
+/* Estilos para o formulário de cadastro rápido */
+.form-cadastro-rapido {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.form-cadastro-rapido input {
+  flex-grow: 1;
+}
+
+.quantidade-input {
+  max-width: 80px;
+}

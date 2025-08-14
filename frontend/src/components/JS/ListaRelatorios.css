@@ -1,0 +1,219 @@
+/* ListaRelatorios.css */
+
+.lista-relatorios-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.titulo-pagina {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.relatorios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.relatorio-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+
+.relatorio-cabecalho {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.relatorio-cabecalho h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.relatorio-corpo {
+  padding: 15px;
+}
+
+.relatorio-descricao {
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.relatorio-detalhes {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.detalhe-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.detalhe-titulo {
+  font-size: 12px;
+  color: #adb5bd;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.detalhe-item span:last-child {
+  font-weight: 600;
+  color: #495057;
+  font-size: 16px;
+}
+
+.relatorio-rodape {
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  text-align: right;
+}
+
+.btn-detalhes {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-detalhes:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Estilo para os cards RECF/CU/MR/DATA como na imagem */
+.relatorio-card-header-tag {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.relatorio-tag {
+  font-size: 12px;
+  font-weight: bold;
+  color: #6c757d;
+  text-transform: uppercase;
+}
+
+/* Mensagens de status */
+.mensagem-status, .mensagem-erro {
+  text-align: center;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 4px;
+}
+
+.mensagem-status {
+  background-color: #e2f3ff;
+  color: #0062cc;
+}
+
+.mensagem-erro {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Botão de adicionar */
+.btn-adicionar-relatorio {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  font-weight: 500;
+}
+
+
+/* Adicione ao final do arquivo ListaRelatorios.css */
+
+.relatorio-rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.acoes-esquerda {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-editar, .btn-excluir {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-editar {
+  border: 2px solid #0099ff;
+  color: #0099ff;
+}
+
+.btn-editar:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.btn-excluir {
+  border: 2px solid #dc3545;
+  color: #dc3545;
+}
+
+.btn-excluir:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.btn-detalhes {
+  /* Mantém os estilos existentes */
+  background: none;
+  border: none;
+  color: #007bff;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-detalhes:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
