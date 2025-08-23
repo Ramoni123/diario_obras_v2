@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import './App.css';
 import Header from './components/JS/Header';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import FormularioRelatorio from './components/JS/FormularioRelatorio'; 
 import ListaRelatorios from './components/JS/ListaRelatorios';
 import VisualizarRelatorio from './components/JS/VisualizarRelatorio';
 import ListaObras from './components/JS/ListaObras';
 import api from './services/api';
+import AdicionarObras from './components/JS/AdicionarObras';
+import VisualizarObras from './components/JS/VisualizarObras';
+import FormularioObras from './components/JS/FormularioObras';
 
 function App() {
   const [viewAtual, setViewAtual] = useState('listaObras'); 
@@ -14,8 +18,12 @@ function App() {
   const [relatorios, setRelatorios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mes, setMes] = useState('')
+  const [obras, setObras] = useState('')
+  const [loadingObras, setLoadingObras] = useState('true')
+  const [obraParaEditar, setObraParaEditar] = useState(null)
 
-  const fetchRelatorios = async () => {
+  const fetchRelatorios = async (obraId) => {
     try {
       setLoading(true);
       if (!obraSelecionadaId) {
@@ -23,7 +31,11 @@ function App() {
       setLoading(false);
       return;
     }
-      const response = await api.get('relatorios/');
+      const response = await api.get('relatorios/',{
+        params :{
+          Obra: obraId
+        }
+      });
       setRelatorios(response.data);
       setError(null);
     } catch (err) {
@@ -33,9 +45,28 @@ function App() {
     }
   };
 
+  const fetchObras = async() => {
+    try {
+      setLoadingObras(true);
+      const response = await api.get('/obras/');
+      setObras(response.data);
+    } catch(error) {
+      console.error("Erro ao buscar obras: ", error);
+    } finally {
+      setLoadingObras(false)
+    }
+  }
+
+  useEffect (() => {
+    if (viewAtual === 'listaObras') {
+      fetchObras();
+    }
+  }, [viewAtual]);
+
+
   useEffect(() => {
-    if (viewAtual == 'lista');{
-      fetchRelatorios()
+    if (viewAtual === 'lista' && obraSelecionadaId){
+      fetchRelatorios(obraSelecionadaId)
     }
   }, [viewAtual, obraSelecionadaId]);
 
@@ -49,12 +80,6 @@ function App() {
     setViewAtual('lista')
   }
 
-  useEffect(() => {
-    if (viewAtual === 'lista') {
-      fetchRelatorios();
-    }
-  }, [viewAtual]);
-
   const irParaAdicionarRelatorio = () => {
     setRelatorioSelecionado(null);
     setViewAtual('formulario');
@@ -62,7 +87,7 @@ function App() {
   
   const irParaEditarRelatorio = (relatorio) => {
     setRelatorioSelecionado(relatorio);
-    setViewAtual('formulario'); //Depois disso chama a handleSaveRelatorio
+    setViewAtual('formulario'); 
   };
 
   const irParaVisualizarRelatorio = (idDoRelatorio) => {
@@ -70,22 +95,46 @@ function App() {
     setViewAtual('visualizar');
   };
 
+  const irParaAdicionarObra = () => {
+    setObraParaEditar(null)
+    setViewAtual('formularioObra');
+  };
+
+  const irParaEditarObra = (obra) => {
+    setObraParaEditar(obra)
+    setViewAtual('formularioObra')
+  }
+  
+  const irParaVisualizarObra = (idDaObra) => {
+    setObraSelecionadaId(idDaObra)
+    setViewAtual("visualizarObra")
+  }
+
+  const handleVoltarParaLista = () => {
+    setObraSelecionadaId(null)
+    setViewAtual("lista")
+  }
+
   const irParaListaDeRelatorios = () => {
     setRelatorioSelecionado(null);
     setViewAtual('lista');
   };
 
-  // FUNÇÃO CORRIGIDA - handleSaveRelatorio
+  const handleMudancaDeMes = (novoMes) => {
+    setMes(novoMes);
+  }
+
   const handleSaveRelatorio = async (relatorioData, fotosBlob, fotosRemovidasIds) => {
     const isEditing = !!relatorioSelecionado;
     
     console.log('Dados recebidos do formulário:', relatorioData);
     
     const dadosParaBackend = {
+      obra: obraSelecionadaId,
       Data: relatorioData.Data,
-      Clima_input: relatorioData.Clima_input, // Mudança: usar Clima_input em vez de Clima
+      Clima_input: relatorioData.Clima_input, 
       Trabalhadores: relatorioData.Trabalhadores,
-      equipamentos_com_quantidade: relatorioData.equipamentos_com_quantidade, // Para os equipamentos não ficarem com quantidades iguais em cards diferentes
+      equipamentos_com_quantidade: relatorioData.equipamentos_com_quantidade, 
       Descricao: relatorioData.Descricao,
     };
 
@@ -95,13 +144,12 @@ function App() {
     const method = isEditing ? 'put' : 'post';
 
     try {
-      const response = await api[method](url, dadosParaBackend); //Enviar requisição pra URL
+      const response = await api[method](url, dadosParaBackend); 
       const relatorioSalvo = response.data;
       const relatorioId = relatorioSalvo.id;
 
       console.log('Relatório salvo:', relatorioSalvo);
 
-      // CORREÇÃO 2: Melhorar tratamento de fotos
       if (isEditing && fotosRemovidasIds && fotosRemovidasIds.length > 0) {
         console.log('Removendo fotos:', fotosRemovidasIds);
         await api.post(`relatorios/${relatorioId}/remover_fotos/`, { ids: fotosRemovidasIds });
@@ -112,7 +160,6 @@ function App() {
         const fotosFormData = new FormData();
         
         fotosBlob.forEach((foto, index) => {
-          // Verificar se é um objeto com blob ou apenas o blob
           const arquivo = foto.file || foto.blob || foto;
           const nomeArquivo = foto.name || `foto_${index}.jpg`;
           fotosFormData.append('imagens', arquivo, nomeArquivo);
@@ -135,7 +182,6 @@ function App() {
       if (err.response && err.response.data) {
         console.log('Dados do erro:', err.response.data);
         
-        // CORREÇÃO 3: Melhor tratamento de erros
         const errorData = err.response.data;
         const errorMessages = [];
         
@@ -161,19 +207,69 @@ function App() {
   console.log("--- Renderizando App.js ---");
   console.log("O valor de 'viewAtual' é:", viewAtual);
 
+const relatoriosFiltrados = mes
+  ? relatorios.filter(relatorio => {
+      const mesDoRelatorio = new Date(relatorio.Data).getMonth() + 1;
+
+      return mesDoRelatorio === parseInt(mes);
+  })
+  : relatorios;
+
+  const handleObraCadastrada = () => {
+    setViewAtual('listaObras')
+  }
+
+    const handleExcluirObra = async (obraId) => {
+        const confirmou = window.confirm("Tem certeza que deseja excluir esta obra? Esta ação não pode ser desfeita.");
+        if (confirmou) {
+            try {
+                await api.delete(`/obras/${obraId}/`);
+                setObras(obrasAtuais => obrasAtuais.filter(obra => obra.id !== obraId));
+                alert("Obra excluída com sucesso!");
+            } catch (error) {
+                console.error("Erro ao excluir a obra:", error);
+                alert("Não foi possível excluir a obra. Tente novamente.");
+            }
+        }
+    };
+
+    const handleSaveObra = async (dadosDaObra) => {
+      try {
+        if (obraParaEditar) {
+          const response = await api.put(`/obras/${obraParaEditar.id}/`, dadosDaObra);
+                setObras(obrasAtuais =>
+                    obrasAtuais.map(obra =>
+                        obra.id === obraParaEditar.id ? response.data : obra
+                    )
+                );
+                alert("Obra atualizada")
+        } else {
+          const response = await api.post('/obras/', dadosDaObra)
+                setObras(obrasAtuais => [...obrasAtuais, response.data]);
+                alert("Obra criada com sucesso!");
+        }
+        irParaListaDeObras()
+      } catch (error) {
+            console.error("Erro ao salvar a obra:", error.response?.data || error.message);
+            alert("Falha ao salvar a obra.");
+      }
+    };
+
   return (
     <div className="App">
       <Header />
-      
       {viewAtual === 'lista' && (
         <ListaRelatorios
-          relatorios={relatorios} loading={loading} error={error}
           onVerDetalhes={irParaVisualizarRelatorio}
+          onVisualizarObra={irParaVisualizarObra}
           onAdicionarClick={irParaAdicionarRelatorio}
           onEditarClick={irParaEditarRelatorio}
           onDeleteSuccess={fetchRelatorios}
           onVoltarParaObras={irParaListaDeObras}
+          relatorios={relatoriosFiltrados}
           obraId={obraSelecionadaId}
+          mesSelecionado={mes}
+          onChangeMes={handleMudancaDeMes}
         />
       )}
 
@@ -193,10 +289,35 @@ function App() {
         />
       )}
 
+      {viewAtual === 'adicionarObra' && (
+        <AdicionarObras onObraCadastrada={handleObraCadastrada}/>
+      )}
+
+      {viewAtual === "visualizarObra" && (
+        <VisualizarObras 
+        obraId = {obraSelecionadaId}
+        onVoltar = {irParaListaDeObras}
+        />
+      )}
+
+      {viewAtual === "formularioObra" && (
+        <FormularioObras
+        onSave={handleSaveObra}
+        onVoltar={irParaListaDeObras}
+        obraParaEditar={obraParaEditar}
+        />
+      )}
+
       {viewAtual === 'listaObras' && (
         <ListaObras
-          onSelecionarObra={irParaListaDeRelatoriosDaObra}
-        />
+          obras = {obras}
+          loading = {loadingObras}
+          onSelecionarObra  = {irParaListaDeRelatoriosDaObra}
+          onAdicionarObra = {irParaAdicionarObra}
+          onVisualizarObra = {irParaVisualizarObra}
+          onExcluirObra={handleExcluirObra}
+          onEditarObra={irParaEditarObra}
+        />  
       )}
     </div>
   );

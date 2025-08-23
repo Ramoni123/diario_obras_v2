@@ -3,31 +3,26 @@ import '../../App.css';
 
 
 function AdicionarRelatorio({ onVoltarParaListaClick }) {
-  // Estados para o usuário preencher quando abre o navegador
   const [Data, setData] = useState('');
   const [Clima, setClima] = useState('');
   const [Trabalhadores, setTrabalhadores] = useState([]);
   const [Equipamentos, setEquipamentos] = useState([]);
   const [Descricao, setDescricao] = useState('');
-  const [fotosBlob, setFotosBlob] = useState([]); // Array de objetos { blob, previewUrl }
+  const [fotosBlob, setFotosBlob] = useState([]); 
   const [erroFotos, setErroFotos] = useState('');
 
-  // Estados para dados da API
   const [availableTrabalhadores, setAvailableTrabalhadores] = useState([]);
   const [availableEquipamentos, setAvailableEquipamentos] = useState([]);
 
-  // Estados para cadastro rápido
   const [novoTrabalhador, setNovoTrabalhador] = useState({ nome: '', funcao: '' });
   const [novoEquipamento, setNovoEquipamento] = useState({ nome: '', tipo: '' });
   const [mostrarFormTrabalhador, setMostrarFormTrabalhador] = useState(false);
   const [mostrarFormEquipamento, setMostrarFormEquipamento] = useState(false);
 
-  // Constantes
   const tiposClima = ['Ensolarado', 'Parcialmente Nublado', 'Nublado', 'Chuvoso', 'Ventoso', 'Chuva Forte'];
   const MAX_FOTOS = 6;
   const MIN_FOTOS = 1;
 
-  // Busca dados iniciais
   useEffect(() => {
     fetch('http://localhost:8000/api/trabalhadores/')
       .then(response => response.json())
@@ -40,7 +35,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
       .catch(error => console.error("Erro ao buscar equipamentos:", error));
   }, []);
 
-  // Funções para cadastro rápido
   const adicionarTrabalhador = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/trabalhadores/', {

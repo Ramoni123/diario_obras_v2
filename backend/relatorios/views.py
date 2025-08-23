@@ -1,11 +1,11 @@
 from rest_framework import viewsets, status, parsers
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Relatorio, Trabalhador, Equipamento, Foto, Obra, EquipamentoRelatorio
 from .serializers import (
     RelatorioSerializer, 
     TrabalhadorSerializer, 
-    # MUDANÇA: Importar os novos serializers de equipamento
     EquipamentoReadSerializer,
     EquipamentoWriteSerializer,
     FotoSerializer, 
@@ -66,6 +66,9 @@ class RelatorioViewSet(viewsets.ModelViewSet):
     ).order_by('-Data')
     serializer_class = RelatorioSerializer
     parser_classes = [parsers.MultiPartParser, parsers.JSONParser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['Obra']
+
 
     def get_queryset(self):
         queryset = super().get_queryset()

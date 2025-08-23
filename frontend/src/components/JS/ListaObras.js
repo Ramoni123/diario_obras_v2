@@ -1,51 +1,70 @@
-// /frontend/src/components/JS/ListaObras.js
+import React from 'react';
+import './ListaObras.css';
 
-import React, { useState, useEffect } from 'react';
-import api from '../../services/api'; 
+// Adicionei Font Awesome para os ícones. Certifique-se de ter o link no seu index.html
+// <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
-const ListaObras = ({onSelecionarObra}) => {
-
-    console.log("-> Componente ListaObras foi chamado para renderizar!");
-    const [obras, setObras] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        console.log("-> useEffect executado.");
-        const fetchObras = async () => {
-            try {
-                console.log("-> Tentando fazer a chamada para api.get");
-                const response = await api.get('/obras/'); 
-                setObras(response.data);
-            } catch (error) {
-                console.error("Erro ao buscar as obras:", error);
-            } finally {
-                setLoading(false); 
-            }
-        };
-
-        fetchObras();
-    }, []); 
+const ListaObras = ({ obras, loading, onSelecionarObra, onAdicionarObra, onVisualizarObra, onExcluirObra, onEditarObra }) => {
 
     if (loading) {
-        return <p>Carregando obras...</p>;
+        return <p className="loading-obras">Carregando obras...</p>;
     }
 
+    const handleVerDetalhesClick = (e, obraId) => {
+        e.stopPropagation();
+        onVisualizarObra(obraId);
+    }
+
+    const handleExcluirClick = (e, obraId) => {
+        e.stopPropagation();
+        onExcluirObra(obraId);
+    };
+
+    const handleEditarClick = (e, obra) => {
+        e.stopPropagation();
+        onEditarObra(obra);
+    };
+
     return (
-        <div>
-            <h1 style={{marginLeft: '20px'}}>Obras</h1>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
+        <div className="lista-obras-container">
+            <h1>Obras</h1>
+            <ul className="obras-list">
                 {obras.map(obra => (
-                    <li 
-                        key={obra.id} 
+                    <li
+                        key={obra.id}
                         onClick={() => onSelecionarObra(obra.id)}
-                        style={{ border: '3px solid #ccc', padding: '20px', marginBottom: '10px', cursor: 'pointer' }}
+                        className="obra-item"
                     >
-                        <h3 style={{ marginTop: 0, }}>{obra.Nome}</h3>
+                        <div className="obra-item-top-actions">
+                            <button onClick={(e) => handleEditarClick(e, obra)} className='btn-action-icon btn-editar-obra' title="Editar Obra">
+                                <i className="fas fa-pencil-alt"></i>
+                            </button>
+                            <button onClick={(e) => handleExcluirClick(e, obra.id)} className='btn-action-icon btn-excluir-obra' title="Excluir Obra">
+                                <i className="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+
+                        <h3>{obra.Nome}</h3>
                         <p>Status: {obra.status_legivel}</p>
                         <p>Total de Relatórios: {obra.quantidade_relatorios}</p>
+                        
+                        <div className="obra-item-bottom-actions">
+                            <button
+                                onClick={(e) => handleVerDetalhesClick(e, obra.id)}
+                                className="btn-ver-detalhes"
+                            >
+                                Ver Detalhes
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>
+            
+            <div className="lista-obras-actions">
+                <button onClick={onAdicionarObra} className="btn-adicionar-obra">
+                    Adicionar Obras
+                </button>
+            </div>
         </div>
     );
 };

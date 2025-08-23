@@ -1,6 +1,7 @@
 import React from 'react';
 import './ListaRelatorios.css';
 import api from '../../services/api';
+import FiltroMes from './FiltroMes';
 
 // Mapa de tradução para exibição do clima
 const CLIMA_DISPLAY_MAP = {
@@ -19,13 +20,26 @@ const formatarData = (dataString) => {
   return data.toLocaleDateString('pt-BR', options);
 };
 
-const ListaRelatorios = ({ relatorios, loading, error, onAdicionarClick, onVerDetalhes, onEditarClick, onDeleteSuccess, onVoltarParaObras }) => {
+const ListaRelatorios = ({ 
+  relatorios, 
+  loading, 
+  error, 
+  onAdicionarClick, 
+  onVerDetalhes, 
+  onEditarClick, 
+  onDeleteSuccess, 
+  onVoltarParaObras,
+  mesSelecionado,
+  onChangeMes 
+}) => {
   
   const handleDeletarRelatorio = async (relatorioId) => {
     try {
       await api.delete(`relatorios/${relatorioId}/`);
       alert('Relatório excluído com sucesso!');
-      onDeleteSuccess();
+      if (onDeleteSuccess && typeof onDeleteSuccess === 'function') {
+        onDeleteSuccess();
+      }
     } catch (err) {
       alert("Erro ao excluir relatório.");
     }
@@ -53,6 +67,13 @@ const ListaRelatorios = ({ relatorios, loading, error, onAdicionarClick, onVerDe
         )}
         <h1 className="titulo-pagina">Relatórios</h1>
       </div>
+      
+      <div className='controles-lista'>
+        <FiltroMes 
+          mesSelecionado={mesSelecionado || ''} 
+          onChangeMes={onChangeMes} 
+        />
+      </div>
 
       <div className="adicionar-relatorio-container">
         <button className="btn-adicionar-relatorio" onClick={onAdicionarClick}>
@@ -63,11 +84,13 @@ const ListaRelatorios = ({ relatorios, loading, error, onAdicionarClick, onVerDe
       {loading && <div className="mensagem-status">Carregando...</div>}
       {error && <div className="mensagem-erro">{error}</div>}
       {!loading && !error && relatorios.length === 0 && (
-        <div className="mensagem-status">Nenhum relatório encontrado.</div>
+        <div className="mensagem-status">
+          Nenhum relatório encontrado para esse mês
+        </div>
       )}
 
       <div className="relatorios-grid">
-        {relatorios.map(relatorio => (
+        {relatorios && relatorios.map(relatorio => (
           <div key={relatorio.id} className="relatorio-card">
             <div className="relatorio-cabecalho">
               <h3>{formatarData(relatorio.Data)}</h3>
@@ -95,14 +118,31 @@ const ListaRelatorios = ({ relatorios, loading, error, onAdicionarClick, onVerDe
             </div>
             <div className="relatorio-rodape">
               <div className="acoes-esquerda">
-                <button className="btn-editar" title="Editar relatório" onClick={(e) => { e.stopPropagation(); onEditarClick(relatorio); }}>
+                <button 
+                  className="btn-editar" 
+                  title="Editar relatório" 
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    if (onEditarClick) onEditarClick(relatorio); 
+                  }}
+                >
                   ✏️
                 </button>
-                <button className="btn-excluir" title="Inativar relatório" onClick={(e) => confirmarExclusao(relatorio.id, e)}>
+                <button 
+                  className="btn-excluir" 
+                  title="Inativar relatório" 
+                  onClick={(e) => confirmarExclusao(relatorio.id, e)}
+                >
                   ❌
                 </button>
               </div>
-              <button className="btn-detalhes" onClick={(e) => { e.stopPropagation(); onVerDetalhes(relatorio.id); }}>
+              <button 
+                className="btn-detalhes" 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  if (onVerDetalhes) onVerDetalhes(relatorio.id); 
+                }}
+              >
                 Ver Detalhes
               </button>
             </div>

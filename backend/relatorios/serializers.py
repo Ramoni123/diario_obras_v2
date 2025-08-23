@@ -41,6 +41,7 @@ class ObraSerializer(serializers.ModelSerializer):
                   'Nome', 
                   'Endereco', 
                   'Data_inicio', 
+                  'Descricao',
                   'Data_fim', 
                   'Status',
                   'quantidade_relatorios',
@@ -72,7 +73,7 @@ class RelatorioSerializer(serializers.ModelSerializer):
     fotos = FotoSerializer(many=True, read_only=True)
     Clima = serializers.CharField(source='get_Clima_display', read_only=True)
     Clima_value = serializers.CharField(source='Clima', read_only=True)
-    Obra_info = ObraSerializer(source='Obra', read_only=True)
+    obra_info = ObraSerializer(source='Obra', read_only=True)
     Clima_input = serializers.ChoiceField(choices=Relatorio.CLIMA_CHOICES, write_only=True, source='Clima')
     Trabalhadores = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Trabalhador.objects.all(), write_only=True, required=False
@@ -80,8 +81,8 @@ class RelatorioSerializer(serializers.ModelSerializer):
     equipamentos_com_quantidade = EquipamentoQuantidadeWriteSerializer(
         many=True, write_only=True, required=False
     )
-    Obra = serializers.PrimaryKeyRelatedField(
-        queryset=Obra.objects.all(), write_only=True, required=False, allow_null=True
+    obra = serializers.PrimaryKeyRelatedField(
+        queryset=Obra.objects.all(),source='Obra', write_only=True, required=False, allow_null=True
     )
 
     class Meta:
@@ -89,11 +90,12 @@ class RelatorioSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'Data', 'Descricao',
             'Clima', 'Clima_input', 'Clima_value',
-            'Obra', 'Obra_info',
+            'obra', 'obra_info',
             'Trabalhadores', 'Trabalhadores_info',
             'Equipamentos_info', 'equipamentos_com_quantidade',
-            'fotos'
+            'fotos','obra'
         ]
+        read_only_fields = ['id', 'Clima', 'Clima_value', 'obra_info', 'Trabalhadores_info', 'Equipamentos_info', 'fotos']
 
     def create(self, validated_data):
         equipamentos_data = validated_data.pop('equipamentos_com_quantidade', [])
