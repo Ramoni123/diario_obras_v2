@@ -13,7 +13,7 @@ const tiposClima = [
 ];
 const MAX_FOTOS = 6;
 
-function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
+function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitting }) {
   const [Data, setData] = useState('');
   const [Clima, setClima] = useState('');
   const [Trabalhadores, setTrabalhadores] = useState([]);
@@ -81,48 +81,36 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // --- INÍCIO DAS VALIDAÇÕES ---
-
-    // 1. Validação da Data
     if (!Data) {
       alert('Erro: Por favor, selecione a data do relatório.');
       return;
     }
 
-    // 2. Validação do Clima
     if (!Clima || Clima === '') {
       alert('Erro: Por favor, selecione as condições climáticas.');
       return;
     }
 
-    // 3. Validação de Trabalhadores
     if (Trabalhadores.length === 0) {
       alert('Erro: É necessário selecionar pelo menos um trabalhador.');
       return;
     }
     
-    // 4. Validação de Equipamentos
     if (Equipamentos.length === 0) {
         alert('Erro: É necessário selecionar pelo menos um equipamento.');
         return;
     }
 
-    // 5. Validação da Descrição
     if (!Descricao || Descricao.trim() === '') {
       alert('Erro: O campo "Descrição" é obrigatório e não pode estar em branco.');
       return;
     }
 
-    // 6. Validação de Fotos (agora para criar e editar)
     const totalFotos = fotosExistentes.length + fotosBlob.length;
     if (totalFotos === 0) {
       alert('Erro: O relatório deve ter pelo menos uma foto.');
       return;
     }
-    
-    // --- FIM DAS VALIDAÇÕES ---
-
-    // Se todas as validações passaram, o código continua a partir daqui...
     
     console.log("Todas as validações passaram. Preparando para salvar...");
 
@@ -138,7 +126,7 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
         Clima_input: Clima,
         Trabalhadores,
         equipamentos_com_quantidade,
-        Descricao: Descricao.trim(), // Boa prática: remover espaços em branco inúteis
+        Descricao: Descricao.trim(),
     };
     
     onSave(relatorioData, fotosBlob, fotosRemovidasIds);
@@ -169,9 +157,6 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
   };
 
   const handleQuantidadeChange = (equipamentoId, novaQuantidade) => {
-    // Se o usuário apagar o campo, a string ficará vazia.
-    // Neste caso, podemos definir a quantidade como 1 ou deixar o campo vazio na UI.
-    // Vamos usar 1 para manter a consistência com o min="1".
     if (novaQuantidade === '') {
       setQuantidadesEquipamentos(prev => ({
         ...prev,
@@ -181,14 +166,10 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
     }
   
     const quantidadeNum = parseInt(novaQuantidade, 10);
-  
-    // Se o usuário digitar algo que não é um número (ex: "e"), parseInt retorna NaN.
-    // Neste caso, simplesmente ignoramos a atualização para não quebrar a UI.
     if (isNaN(quantidadeNum)) {
-      return; // Para a execução aqui, não atualiza o estado com NaN
+      return;
     }
   
-    // Se for um número válido, garantimos que seja no mínimo 1.
     const quantidadeFinal = Math.max(1, quantidadeNum);
   
     setQuantidadesEquipamentos(prev => ({
@@ -239,13 +220,10 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
             return;
           }
     
-          // Cria o objeto consistente com o ID numérico
           const trabalhadorConsistente = { ...trabalhadorCriado, id: novoIdNumerico };
     
-          // Adiciona o novo trabalhador à lista de disponíveis APENAS UMA VEZ
           setAvailableTrabalhadores(prev => [...prev, trabalhadorConsistente]);
           
-          // Adiciona o ID do novo trabalhador à lista de selecionados APENAS UMA VEZ
           setTrabalhadores(prev => [...prev, novoIdNumerico]);
     
           setNovoTrabalhador({ Nome: '', Funcao: '' });
@@ -332,19 +310,15 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar }) {
       }
     }
   };
-// Adicione esta função antes do 'return (' do seu componente
 const getQuantidadeValue = (equipId) => {
-  // Para depuração: veja o que está sendo passado
   console.log(`Buscando quantidade para ID: [${equipId}] do tipo [${typeof equipId}]`);
 
   const qtd = quantidadesEquipamentos[equipId];
   
-  // Se a quantidade for um número válido, retorne-a
   if (typeof qtd === 'number' && !isNaN(qtd)) {
     return qtd;
   }
   
-  // Para qualquer outro caso (undefined, null, NaN), retorne 1 como padrão seguro.
   return 1;
 };
 
@@ -485,7 +459,7 @@ const getQuantidadeValue = (equipId) => {
         </div>
         
         <div className="form-group-display">
-          <button type="submit" className="submit-button" style={{ width: '100%', padding: '15px', marginTop: '20px' }}>
+          <button type="submit" className="submit-button" disabled={isSubmitting} style={{ width: '100%', padding: '15px', marginTop: '20px' }}>
             {relatorioParaEditar ? 'Salvar Alterações' : 'Criar Relatório'}
           </button>
         </div>

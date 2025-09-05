@@ -79,7 +79,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
     }
   };
   
-  // Handlers do formulário principal
   const handleTrabalhadoresChange = (e) => {
     const options = Array.from(e.target.selectedOptions);
     setTrabalhadores(options.map(option => parseInt(option.value, 10)));
@@ -125,7 +124,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
     }
   };
 
-  // Limpeza de memória
   useEffect(() => {
     return () => {
       fotosBlob.forEach(({ previewUrl }) => {
@@ -151,7 +149,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
     };
 
     try {
-      // Criar relatório
       const relatorioResponse = await fetch('http://localhost:8000/api/relatorios/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -166,7 +163,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
 
       const novoRelatorio = await relatorioResponse.json();
 
-      // Enviar fotos como Blobs via FormData
       if (fotosBlob.length > 0) {
         const fotosFormData = new FormData();
         fotosBlob.forEach(({ blob }) => {
@@ -181,7 +177,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
 
       alert('Relatório criado com sucesso!');
       
-      // Resetar formulário
       setData('');
       setClima('');
       setTrabalhadores([]);
@@ -216,7 +211,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
       </div>
 
       <form onSubmit={controllerRelatorio}>
-        {/* Campo de Data */}
         <div className="form-group">
           <label htmlFor="data" className="form-label">Data:</label>
           <input
@@ -230,7 +224,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
           />
         </div>
 
-        {/* Campo de Clima */}
         <div className="form-group">
           <label htmlFor="clima" className="form-label">Clima:</label>
           <select
@@ -247,7 +240,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
           </select>
         </div>
 
-        {/* Campo de Trabalhadores */}
         <div className="form-group">
           <label className="form-label">
             Trabalhadores:
@@ -302,7 +294,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
           <small>Ctrl+Click (ou Cmd+Click) para seleção múltipla</small>
         </div>
 
-        {/* Campo de Equipamentos */}
       <div className="form-group">
         <label className="form-label">
           Equipamentos:
@@ -361,7 +352,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
         </div>
       </div>
 
-        {/* Campo de Descrição */}
         <div className="form-group">
           <label htmlFor="descricao" className="form-label">
             Descrição:
@@ -377,7 +367,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
           />
         </div>
 
-        {/* Campo de Fotos */}
         <div className="form-group">
           <label htmlFor="fotos" className="form-label">
             Fotos (mín. {MIN_FOTOS}, máx. {MAX_FOTOS}):
@@ -411,7 +400,6 @@ function AdicionarRelatorio({ onVoltarParaListaClick }) {
           )}
         </div>
 
-        {/* Botão de Envio */}
         <div className="form-group">
           <button type="submit" className="submit-button">
             Criar Relatório

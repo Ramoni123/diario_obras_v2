@@ -3,7 +3,6 @@ import './ListaRelatorios.css';
 import api from '../../services/api';
 import FiltroMes from './FiltroMes';
 
-// Mapa de tradução para exibição do clima
 const CLIMA_DISPLAY_MAP = {
   'sol': 'Ensolarado',
   'parcial': 'Parcialmente Nublado',

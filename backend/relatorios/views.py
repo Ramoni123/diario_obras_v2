@@ -3,18 +3,22 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Relatorio, Trabalhador, Equipamento, Foto, Obra, EquipamentoRelatorio
+from .permissions import IsAdminOrSuperuser
+from django.contrib.auth.models import User
 from .serializers import (
     RelatorioSerializer, 
     TrabalhadorSerializer, 
     EquipamentoReadSerializer,
     EquipamentoWriteSerializer,
     FotoSerializer, 
-    ObraSerializer
+    ObraSerializer,
+    UserSerializer,
 )
 
 class TrabalhadorViewSet(viewsets.ModelViewSet):
     queryset = Trabalhador.objects.all()
     serializer_class = TrabalhadorSerializer
+
 
 class ObraViewSet(viewsets.ModelViewSet):
     queryset = Obra.objects.all().prefetch_related('relatorios')
@@ -33,10 +37,7 @@ class ObraViewSet(viewsets.ModelViewSet):
 
 class EquipamentoViewSet(viewsets.ModelViewSet):
     queryset = Equipamento.objects.all()
-    # MUDANÇA: Remover a definição estática do serializer_class
 
-    # MUDANÇA: Adicionar o método get_serializer_class para escolher o serializer
-    # com base na ação (leitura ou escrita).
     def get_serializer_class(self):
         """
         Retorna um serializer diferente para operações de leitura (GET)
@@ -49,7 +50,6 @@ class EquipamentoViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         equipamento = self.get_object()
 
-        # Verifique se o equipamento está associado a algum relatório
         if EquipamentoRelatorio.objects.filter(Equipamento=equipamento).exists():
             return Response(
                 {'error': 'Este equipamento está vinculado a relatórios e não pode ser excluído.'},
@@ -73,11 +73,14 @@ class RelatorioViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         
-        # Filtro por obra
         obra_id = self.request.query_params.get('obra')
         if obra_id:
             queryset = queryset.filter(Obra_id=obra_id)
             
+        mes = self.request.query_params.get('mes', None)
+        if mes is not None and mes.isdigit():
+            queryset = queryset.filter(Data__month=int(mes))
+
         return queryset
 
     @action(detail=True, methods=['post'])
@@ -127,3 +130,8 @@ class RelatorioViewSet(viewsets.ModelViewSet):
             {'status': 'Nenhuma foto correspondente encontrada'},
             status=status.HTTP_404_NOT_FOUND
         )
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminOrSuperuser]

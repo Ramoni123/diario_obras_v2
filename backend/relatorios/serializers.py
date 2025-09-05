@@ -1,7 +1,8 @@
 from rest_framework import serializers
-# Importar o UniqueValidator
 from rest_framework.validators import UniqueValidator
 from .models import Relatorio, Trabalhador, Equipamento, Foto, Obra, EquipamentoRelatorio
+from django.contrib.auth.models import User, Group
+
 
 class TrabalhadorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,3 +124,29 @@ class RelatorioSerializer(serializers.ModelSerializer):
                 Quantidade_usada=eq_data['Quantidade_usada']
             )
         return instance
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["name"]
+
+class UserSerializer(serializers.ModelSerializer):
+    groups = GroupSerializer(many=True, read_only=True) 
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'groups', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
+        try:
+            engenheiros_group = Group.objects.get(name='Engenheiros')
+            user.groups.add(engenheiros_group)
+        except Group.DoesNotExist:
+            print("AVISO: O grupo 'Engenheiros' não foi encontrado. O novo utilizador não foi adicionado a um grupo.")
+        return user
