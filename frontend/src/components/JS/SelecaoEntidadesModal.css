@@ -1,0 +1,102 @@
+/* Fundo escuro que cobre toda a tela */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Garante que o modal fique por cima de tudo */
+  backdrop-filter: blur(3px);
+}
+
+.modal-container {
+  background-color: #f9f9f9;
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 600px; /* Largura máxima do modal */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.6em;
+  color: #333;
+}
+
+.btn-fechar-modal {
+  background: transparent;
+  border: none;
+  font-size: 2.5em;
+  font-weight: 300;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.btn-fechar-modal:hover {
+  color: #333;
+}
+
+.modal-body {
+  flex-grow: 1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+  margin-top: 30px;
+}
+
+.btn-confirmar {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-confirmar:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-selecionar {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 1em;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-selecionar:hover {
+  border-color: #007bff;
+}

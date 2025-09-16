@@ -9,7 +9,7 @@ const formatarData = (data) => {
     return new Intl.DateTimeFormat('pt-BR').format(dataObj);
 };
 
-const VisualizarObra = ({ obraId, onVoltar }) => {
+const VisualizarObra = ({ obraId}) => {
     const [obra, setObra] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');

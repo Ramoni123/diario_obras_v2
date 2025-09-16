@@ -13,6 +13,8 @@ import FormularioObras from './components/JS/FormularioObras';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/JS/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import PaginaGerenciarUsuarios from './pages/PaginaGerenciarUsuarios'
+
 
 function PaginaListaObras(){
     const [obras, setObras] = useState([]);
@@ -35,6 +37,10 @@ function PaginaListaObras(){
         }
     };
 
+    const handleGerenciarUsuarios = () => {
+        navigate('/admin/usuarios');
+    }
+
     return (
         <ListaObras
             obras={obras}
@@ -44,6 +50,7 @@ function PaginaListaObras(){
             onVisualizarObra={(id) => navigate(`/obras/${id}`)}
             onEditarObra={(obra) => navigate(`/obras/editar/${obra.id}`)}
             onExcluirObra={handleExcluirObra}
+            onGerenciarUsuarios={handleGerenciarUsuarios}
         />
     );
 }
@@ -81,7 +88,7 @@ function PaginaFormularioObra() {
     return (
         <FormularioObras
             onSave={handleSaveObra}
-            onVoltar={() => navigate('/')}
+            onVoltar={() => navigate('/obras')}
             obraParaEditar={obraParaEditar}
         />
     );
@@ -91,7 +98,7 @@ function PaginaVisualizarObra() {
     const { id } = useParams(); 
     const navigate = useNavigate();
     
-    return <VisualizarObras obraId={id} onVoltar={() => navigate('/')} />
+    return <VisualizarObras obraId={id} onVoltarParaObras={() => navigate('/obras')} />
 }
 
 function PaginaListaRelatorios() {

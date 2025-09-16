@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import api from '../../services/api';
-import './AdicionarObras.css'; // Criaremos este arquivo de estilo a seguir
+import './AdicionarObras.css';
 import '../../App.css'; 
 
 const AdicionarObras = ({ onObraCadastrada }) => {
@@ -30,7 +30,6 @@ const AdicionarObras = ({ onObraCadastrada }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validação simples
         if (!formData.Nome || !formData.Endereco || !formData.Data_inicio) {
             setError('Os campos Nome, Endereço e Data de Início são obrigatórios.');
             return;
@@ -41,7 +40,6 @@ const AdicionarObras = ({ onObraCadastrada }) => {
         setSuccess('');
 
         try {
-            // A API pode esperar 'null' para campos de data vazios
             const dataToSend = {
                 ...formData,
                 Data_fim: formData.Data_fim || null,
@@ -50,12 +48,10 @@ const AdicionarObras = ({ onObraCadastrada }) => {
             await api.post('/obras/', dataToSend);
             setSuccess('Obra cadastrada com sucesso!');
             
-            // Limpa o formulário
             setFormData({
                 Nome: '', Endereco: '', Data_inicio: '', Data_fim: '', Descricao: '', Status: 'andamento',
             });
 
-            // Chama a função do componente pai para voltar à lista
             if (onObraCadastrada) {
                 onObraCadastrada();
             }

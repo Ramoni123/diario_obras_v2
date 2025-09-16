@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import './VisualizarRelatorio.css';
 import '../../App.css'; 
+import SelecaoEntidadesModal from './SelecaoEntidadesModal';
 
 const tiposClima = [
   { valor: 'sol', display: 'Ensolarado' },
@@ -29,7 +30,6 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
   const [availableEquipamentos, setAvailableEquipamentos] = useState([]);
   
   const [novoTrabalhador, setNovoTrabalhador] = useState({ Nome: '', Funcao: '' });
-  const [mostrarFormTrabalhador, setMostrarFormTrabalhador] = useState(false);
   const [novoEquipamento, setNovoEquipamento] = useState({ Nome: '', Tipo: '' });
   const [mostrarFormEquipamento, setMostrarFormEquipamento] = useState(false);
   const [erroEquipamento, setErroEquipamento] = useState('');
@@ -40,8 +40,18 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
   const [quantidadesEquipamentos, setQuantidadesEquipamentos] = useState({});
   const MonteInicial = useRef(true);
 
+  const [modalTrabalhadoresVisivel, setModalTrabalhadoresVisivel] = useState(false);
+  const [modalEquipamentosVisivel, setModalEquipamentosVisivel] = useState(false);
+  const [tempTrabalhadores, setTempTrabalhadores] = useState([]);
+  const [tempEquipamentos, setTempEquipamentos] = useState([]);
+  const [tempQuantidades, setTempQuantidades] = useState({});
 
-  useEffect(() => {  //pega os dados pré existentes de trabalhadores, equipamentos etc
+  const [mostrarFormNovoTrabalhador, setMostrarFormNovoTrabalhador] = useState(false);
+  const [trabalhadorEmEdicaoId, setTrabalhadorEmEdicaoId] = useState(null);
+  const [trabalhadorEmEdicaoDados, setTrabalhadorEmEdicaoDados] = useState({ Nome: '', Funcao: '' });  
+
+
+  useEffect(() => { 
     api.get('trabalhadores/').then(res => setAvailableTrabalhadores(res.data));
     api.get('equipamentos/').then(res => setAvailableEquipamentos(res.data));
   }, []);
@@ -132,51 +142,6 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
     onSave(relatorioData, fotosBlob, fotosRemovidasIds);
   };
 
-  const handleTrabalhadoresChange = (e) => {
-    const options = Array.from(e.target.selectedOptions, option => parseInt(option.value, 10));
-    setTrabalhadores(options);
-  };
-  
-  const handleEquipamentosChange = (equipamentoId) => {
-    const idNum = parseInt(equipamentoId, 10);
-    const isSelected = Equipamentos.includes(idNum);
-    if (isSelected) {
-      setEquipamentos(prev => prev.filter(id => id !== idNum));
-      setQuantidadesEquipamentos(prev => {
-        const newQuantidades = { ...prev };
-        delete newQuantidades[idNum];
-        return newQuantidades;
-      });
-    } else {
-      setEquipamentos(prev => [...prev, idNum]);
-      setQuantidadesEquipamentos(prev => ({
-        ...prev,
-        [idNum]: 1
-      }));
-    }
-  };
-
-  const handleQuantidadeChange = (equipamentoId, novaQuantidade) => {
-    if (novaQuantidade === '') {
-      setQuantidadesEquipamentos(prev => ({
-        ...prev,
-        [equipamentoId]: 1,
-      }));
-      return; // Para a execução aqui
-    }
-  
-    const quantidadeNum = parseInt(novaQuantidade, 10);
-    if (isNaN(quantidadeNum)) {
-      return;
-    }
-  
-    const quantidadeFinal = Math.max(1, quantidadeNum);
-  
-    setQuantidadesEquipamentos(prev => ({
-      ...prev,
-      [equipamentoId]: quantidadeFinal,
-    }));
-  };
   
   const handleFotoChange = (e) => {
     const novosArquivos = Array.from(e.target.files);
@@ -203,37 +168,6 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
     });
   };
   
-    const adicionarTrabalhador = async () => {
-        if (!novoTrabalhador.Nome || !novoTrabalhador.Funcao) {
-          alert('Nome e Função do trabalhador são obrigatórios.');
-          return;
-        }
-        try {
-          const response = await api.post('trabalhadores/', novoTrabalhador);
-          const trabalhadorCriado = response.data;
-    
-          const novoIdNumerico = parseInt(trabalhadorCriado.id, 10);
-    
-          if (isNaN(novoIdNumerico)) {
-            console.error("API retornou um ID inválido para o novo trabalhador:", trabalhadorCriado);
-            alert("Falha ao adicionar trabalhador: ID inválido recebido do servidor.");
-            return;
-          }
-    
-          const trabalhadorConsistente = { ...trabalhadorCriado, id: novoIdNumerico };
-    
-          setAvailableTrabalhadores(prev => [...prev, trabalhadorConsistente]);
-          
-          setTrabalhadores(prev => [...prev, novoIdNumerico]);
-    
-          setNovoTrabalhador({ Nome: '', Funcao: '' });
-          setMostrarFormTrabalhador(false);
-        } catch (error) {
-          console.error("Erro ao adicionar trabalhador:", error);
-          alert("Falha ao adicionar trabalhador.");
-        }
-      };
-
   const adicionarEquipamento = async () => {
     setErroEquipamento('');
     const nomeTrimmed = novoEquipamento.Nome.trim();
@@ -254,7 +188,7 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
       if (isNaN(novoIdNumerico)) {
         console.error("ERRO CRÍTICO: A API retornou um ID inválido que resultou em NaN!", equipamentoCriado);
         alert("Falha ao adicionar equipamento: O servidor retornou um ID inválido.");
-        return; // Aborta a função antes de atualizar o estado
+        return;
       }
 
       const equipamentoConsistente = { ...equipamentoCriado, id: novoIdNumerico };
@@ -310,19 +244,131 @@ function FormularioRelatorio({ relatorioParaEditar, onSave, onVoltar, isSubmitti
       }
     }
   };
-const getQuantidadeValue = (equipId) => {
-  console.log(`Buscando quantidade para ID: [${equipId}] do tipo [${typeof equipId}]`);
-
-  const qtd = quantidadesEquipamentos[equipId];
-  
-  if (typeof qtd === 'number' && !isNaN(qtd)) {
-    return qtd;
-  }
-  
-  return 1;
-};
 
   const hoje = new Date().toISOString().slice(0,10);
+
+  const handleAbrirModalTrabalhadores = () => {
+    setTempTrabalhadores([...Trabalhadores]);
+    setModalTrabalhadoresVisivel(true);
+  };
+
+  const handleTempTrabalhadoresChange = (trabalhadorId) => {
+    const idNum = parseInt(trabalhadorId, 10);
+    setTempTrabalhadores(prev => 
+      prev.includes(idNum) 
+        ? prev.filter(id => id !== idNum)
+        : [...prev, idNum]
+    );
+  };
+
+  const handleConfirmarSelecaoTrabalhadores = () => {
+    setTrabalhadores([...tempTrabalhadores]);
+    setModalTrabalhadoresVisivel(false);
+  };
+  
+  const handleFecharModalTrabalhadores = () => {
+    setTempTrabalhadores([]); 
+    setModalTrabalhadoresVisivel(false);
+  }
+
+ const handleAdicionarTrabalhador = async () => {
+    if (!novoTrabalhador.Nome || !novoTrabalhador.Funcao) {
+      alert('Nome e Função são obrigatórios.');
+      return;
+    }
+    try {
+      const response = await api.post('trabalhadores/', novoTrabalhador);
+      setAvailableTrabalhadores([...availableTrabalhadores, response.data]);
+      setNovoTrabalhador({ Nome: '', Funcao: '' });
+      setMostrarFormNovoTrabalhador(false);
+    } catch (error) {
+      console.error("Erro ao adicionar trabalhador:", error);
+      alert("Falha ao adicionar trabalhador.");
+    }
+  };
+
+  const handleIniciarEdicaoTrabalhador = (worker) => {
+    setTrabalhadorEmEdicaoId(worker.id);
+    setTrabalhadorEmEdicaoDados({ Nome: worker.Nome, Funcao: worker.Funcao });
+  };
+
+  const handleSalvarEdicaoTrabalhador = async (id) => {
+    try {
+      const response = await api.put(`trabalhadores/${id}/`, trabalhadorEmEdicaoDados);
+      setAvailableTrabalhadores(prev => 
+        prev.map(worker => (worker.id === id ? response.data : worker))
+      );
+      setTrabalhadorEmEdicaoId(null);
+    } catch (error) {
+      console.error("Erro ao editar trabalhador:", error);
+      alert("Falha ao editar trabalhador.");
+    }
+  };
+
+
+  const handleRemoverTrabalhador = async (id) => {
+    if (window.confirm('Tem certeza que deseja remover este trabalhador?')) {
+      try {
+        await api.delete(`trabalhadores/${id}/`);
+        setAvailableTrabalhadores(prev => prev.filter(worker => worker.id !== id));
+        setTempTrabalhadores(prev => prev.filter(workerId => workerId !== id));
+        setTrabalhadores(prev => prev.filter(workerId => workerId !== id));
+      } catch (error) {
+        console.error("Erro ao remover trabalhador:", error);
+        alert("Falha ao remover trabalhador. Verifique se ele não está associado a outros relatórios.");
+      }
+    }
+  };
+
+
+  const handleAbrirModalEquipamentos = () => {
+    setTempEquipamentos([...Equipamentos]);
+    setTempQuantidades({ ...quantidadesEquipamentos });
+    setModalEquipamentosVisivel(true);
+  };
+
+  const handleConfirmarSelecaoEquipamentos = () => {
+    setEquipamentos([...tempEquipamentos]);
+    setQuantidadesEquipamentos({ ...tempQuantidades });
+    setModalEquipamentosVisivel(false);
+  };
+
+  const handleFecharModalEquipamentos = () => {
+    setModalEquipamentosVisivel(false);
+    setTempEquipamentos([]);
+    setTempQuantidades({});
+  };
+
+  const handleTempEquipamentosChange = (equipamentoId) => {
+    const idNum = parseInt(equipamentoId, 10);
+    const isSelected = tempEquipamentos.includes(idNum);
+    
+    if (isSelected) {
+      setTempEquipamentos(prev => prev.filter(id => id !== idNum));
+      setTempQuantidades(prev => {
+        const newQuantidades = { ...prev };
+        delete newQuantidades[idNum];
+        return newQuantidades;
+      });
+    } else {
+      setTempEquipamentos(prev => [...prev, idNum]);
+      setTempQuantidades(prev => ({
+        ...prev,
+        [idNum]: 1
+      }));
+    }
+  };
+
+  const handleTempQuantidadeChange = (equipamentoId, novaQuantidade) => {
+    const quantidadeNum = parseInt(novaQuantidade, 10);
+    
+    if (!isNaN(quantidadeNum) && quantidadeNum >= 1) {
+      setTempQuantidades(prev => ({
+        ...prev,
+        [equipamentoId]: quantidadeNum,
+      }));
+    }
+  };
 
   return (
     <div className="visualizar-relatorio">
@@ -347,82 +393,19 @@ const getQuantidadeValue = (equipId) => {
         </div>
 
         <div className="form-group-display">
-          <label className="form-label-display">
-            <strong>Trabalhadores:</strong>
-            <button type="button" onClick={() => setMostrarFormTrabalhador(!mostrarFormTrabalhador)} className="btn-adicionar">
-              {mostrarFormTrabalhador ? 'Cancelar' : '+ Novo'}
-            </button>
-          </label>
-          {mostrarFormTrabalhador && (
-            <div className="form-cadastro-rapido">
-              <input type="text" placeholder="Nome do Trabalhador" value={novoTrabalhador.Nome} onChange={e => setNovoTrabalhador({...novoTrabalhador, Nome: e.target.value})} />
-              <input type="text" placeholder="Função" value={novoTrabalhador.Funcao} onChange={e => setNovoTrabalhador({...novoTrabalhador, Funcao: e.target.value})} />
-              <button type="button" onClick={adicionarTrabalhador} className="btn-salvar">Salvar</button>
-            </div>
-          )}
-          <select multiple value={Trabalhadores} onChange={handleTrabalhadoresChange} className="form-control" style={{ height: '120px' }}>
-            {availableTrabalhadores.map(worker => (
-              <option key={worker.id} value={worker.id}>{worker.Nome} ({worker.Funcao})</option>
-            ))}
-          </select>
-          <small>Use Ctrl/Cmd para selecionar múltiplos.</small>
+          <label className="form-label-display"><strong>Trabalhadores:</strong></label>
+          <button type="button" onClick={handleAbrirModalTrabalhadores} className="btn-selecionar">
+            Selecionar Trabalhadores ({Trabalhadores.length} selecionados)
+          </button>
         </div>
 
         <div className="form-group-display">
-          <label className="form-label-display">
-            <strong>Equipamentos:</strong>
-            <button type="button" onClick={() => setMostrarFormEquipamento(!mostrarFormEquipamento)} className="btn-adicionar">
-              {mostrarFormEquipamento ? 'Cancelar' : '+ Novo'}
-            </button>
-          </label>
-          {mostrarFormEquipamento && (
-             <div className="form-cadastro-rapido">
-                <input type="text" placeholder="Nome do Equipamento" value={novoEquipamento.Nome} onChange={e => setNovoEquipamento({...novoEquipamento, Nome: e.target.value})} required />
-                <input type="text" placeholder="Tipo (ex: Construção)" value={novoEquipamento.Tipo} onChange={e => setNovoEquipamento({...novoEquipamento, Tipo: e.target.value})} required />
-                <button type="button" onClick={adicionarEquipamento} className="btn-salvar">Salvar</button>
-             </div>
-          )}
-          {erroEquipamento && <div className="error-message" style={{ marginTop: '10px' }}>{erroEquipamento}</div>}
-          <div className="checkbox-group">
-            {availableEquipamentos.map(equip => (
-              <div key={equip.id} className="list-item-container">
-                {editingEquipId === equip.id ? (
-                  <div className="form-edicao-em-linha">
-                    <input type="text" value={editingEquipData.Nome} onChange={e => setEditingEquipData({...editingEquipData, Nome: e.target.value})} />
-                    <input type="text" value={editingEquipData.Tipo} onChange={e => setEditingEquipData({...editingEquipData, Tipo: e.target.value})} />
-                    <button type="button" onClick={() => handleSalvarEdicao(equip.id)} className="btn-salvar-edicao" title="Salvar">✔️</button>
-                    <button type="button" onClick={handleCancelarEdicao} className="btn-cancelar-edicao" title="Cancelar">✖️</button>
-                  </div>
-                ) : (
-                  <label className="checkbox-label-equipamento">
-                    <div className="checkbox-info">
-                      <input type="checkbox" value={equip.id} checked={Equipamentos.includes(equip.id)} onChange={() => handleEquipamentosChange(equip.id)} />
-                      {equip.Nome} ({equip.Tipo})
-                      {Equipamentos.includes(equip.id) && (
-                        <div style={{ marginLeft: '20px', marginTop: '5px' }}>
-                          <label>Qtd. usada: </label>
-                          <input 
-                            type="number" 
-                            min="1" 
-                            value={getQuantidadeValue(equip.id)} 
-                            onChange={e => handleQuantidadeChange(equip.id, e.target.value)}
-                            className="quantidade-input"
-                            style={{ width: '60px', marginLeft: '5px' }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="acoes-equipamento">
-                      <button type="button" onClick={() => handleIniciarEdicao(equip)} className="btn-acao-equip" title="Editar">✏️</button>
-                      <button type="button" onClick={() => handleDeletarEquipamento(equip.id)} className="btn-acao-equip" title="Deletar">🗑️</button>
-                    </div>
-                  </label>
-                )}
-              </div>
-            ))}
-          </div>
+          <label className="form-label-display"><strong>Equipamentos:</strong></label>
+          <button type="button" onClick={handleAbrirModalEquipamentos} className="btn-selecionar">
+            Selecionar Equipamentos ({Equipamentos.length} selecionados)
+          </button>
         </div>
-        
+  
         <div className="form-group-display">
           <label htmlFor="descricao" className="form-label-display"><strong>Descrição:</strong></label>
           <textarea id="descricao" value={Descricao} onChange={e => setDescricao(e.target.value)} className="form-control" rows={5} />
@@ -464,8 +447,138 @@ const getQuantidadeValue = (equipId) => {
           </button>
         </div>
       </form>
+      <SelecaoEntidadesModal
+        visivel={modalTrabalhadoresVisivel}
+        titulo="Gerir e Selecionar Trabalhadores"
+        onFechar={handleFecharModalTrabalhadores}
+      >
+        <div className="modal-secao-adicionar">
+            <button 
+                type="button" 
+                className="btn-adicionar-modal"
+                onClick={() => setMostrarFormNovoTrabalhador(!mostrarFormNovoTrabalhador)}
+            >
+                {mostrarFormNovoTrabalhador ? 'Cancelar' : '+ Adicionar Novo Trabalhador'}
+            </button>
+            {mostrarFormNovoTrabalhador && (
+                <div className="form-cadastro-rapido-modal">
+                    <input 
+                        type="text" 
+                        placeholder="Nome do Trabalhador" 
+                        value={novoTrabalhador.Nome} 
+                        onChange={e => setNovoTrabalhador({...novoTrabalhador, Nome: e.target.value})} 
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Função" 
+                        value={novoTrabalhador.Funcao} 
+                        onChange={e => setNovoTrabalhador({...novoTrabalhador, Funcao: e.target.value})} 
+                    />
+                    <button type="button" onClick={handleAdicionarTrabalhador} className="btn-salvar-modal">Salvar</button>
+                </div>
+            )}
+        </div>
+        
+        <div className="lista-selecao-modal">
+          {availableTrabalhadores.map(worker => (
+            <div key={worker.id} className="item-gerenciamento-modal">
+              {trabalhadorEmEdicaoId === worker.id ? (
+                <div className="form-edicao-em-linha-modal">
+                  <input type="text" value={trabalhadorEmEdicaoDados.Nome} onChange={e => setTrabalhadorEmEdicaoDados({...trabalhadorEmEdicaoDados, Nome: e.target.value})} />
+                  <input type="text" value={trabalhadorEmEdicaoDados.Funcao} onChange={e => setTrabalhadorEmEdicaoDados({...trabalhadorEmEdicaoDados, Funcao: e.target.value})} />
+                  <div className="acoes-edicao-modal">
+                      <button type="button" onClick={() => handleSalvarEdicaoTrabalhador(worker.id)} title="Salvar">✔️</button>
+                      <button type="button" onClick={() => setTrabalhadorEmEdicaoId(null)} title="Cancelar">✖️</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <label className="item-selecao-info">
+                    <input 
+                      type="checkbox"
+                      checked={tempTrabalhadores.includes(worker.id)}
+                      onChange={() => handleTempTrabalhadoresChange(worker.id)}
+                    />
+                    <span>{worker.Nome} ({worker.Funcao})</span>
+                  </label>
+                  <div className="item-selecao-acoes">
+                    <button type="button" onClick={() => handleIniciarEdicaoTrabalhador(worker)} title="Editar">✏️</button>
+                    <button type="button" onClick={() => handleRemoverTrabalhador(worker.id)} title="Remover">🗑️</button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        <div className="modal-footer">
+          <button onClick={handleConfirmarSelecaoTrabalhadores} className="btn-confirmar">Confirmar Seleção</button>
+        </div>
+      </SelecaoEntidadesModal>
+      <SelecaoEntidadesModal
+          visivel={modalEquipamentosVisivel}
+          titulo="Gerir e Selecionar Equipamentos"
+          onFechar={handleFecharModalEquipamentos}
+      >
+          <div className="form-adicao-container">
+              <button
+                  type="button"
+                  className="btn-adicionar-entidade"
+                  onClick={() => setMostrarFormEquipamento(!mostrarFormEquipamento)}
+              >
+                  {mostrarFormEquipamento ? 'Cancelar' : '＋ Adicionar Novo Equipamento'}
+              </button>
+              {mostrarFormEquipamento && (
+                  <div className="form-cadastro-rapido">
+                      <input type="text" placeholder="Nome do Equipamento" value={novoEquipamento.Nome} onChange={e => setNovoEquipamento({ ...novoEquipamento, Nome: e.target.value })} />
+                      <input type="text" placeholder="Tipo (ex: Ferramenta)" value={novoEquipamento.Tipo} onChange={e => setNovoEquipamento({ ...novoEquipamento, Tipo: e.target.value })} />
+                      <button type="button" onClick={adicionarEquipamento} className="btn-salvar">Salvar</button>
+                      {erroEquipamento && <small className="error-message">{erroEquipamento}</small>}
+                  </div>
+              )}
+          </div>
+            
+          <div className="lista-entidades">
+              {availableEquipamentos.map(equip => (
+                  <div key={equip.id} className="lista-item-equipamento">
+                      {editingEquipId === equip.id ? (
+                          <div className="form-edicao-em-linha">
+                              <input type="text" value={editingEquipData.Nome} onChange={e => setEditingEquipData({ ...editingEquipData, Nome: e.target.value })} />
+                              <input type="text" value={editingEquipData.Tipo} onChange={e => setEditingEquipData({ ...editingEquipData, Tipo: e.target.value })} />
+                              <button type="button" onClick={() => handleSalvarEdicao(equip.id)} className="btn-salvar-edicao" title="Salvar">✔️</button>
+                              <button type="button" onClick={handleCancelarEdicao} className="btn-cancelar-edicao" title="Cancelar">✖️</button>
+                          </div>
+                      ) : (
+                          // Vista Normal
+                          <>
+                              <div className="equipamento-info">
+                                  <input type="checkbox" id={`equip-temp-${equip.id}`} checked={tempEquipamentos.includes(equip.id)} onChange={() => handleTempEquipamentosChange(equip.id)} />
+                                  <label htmlFor={`equip-temp-${equip.id}`}>{equip.Nome} ({equip.Tipo})</label>
+                              </div>
+                      
+                              <div className="acoes-entidade">
+                                  {tempEquipamentos.includes(equip.id) && (
+                                      <div className="quantidade-container">
+                                          <label htmlFor={`qtd-temp-${equip.id}`}>Qtd:</label>
+                                          <input type="number" id={`qtd-temp-${equip.id}`} min="1" className="quantidade-input-modal" value={tempQuantidades[equip.id] || 1} onChange={(e) => handleTempQuantidadeChange(equip.id, e.target.value)} onClick={(e) => e.stopPropagation()} />
+                                      </div>
+                                  )}
+                                  <button type="button" onClick={() => handleIniciarEdicao(equip)} className="btn-acao-entidade" title="Editar">✏️</button>
+                                  <button type="button" onClick={() => handleDeletarEquipamento(equip.id)} className="btn-acao-entidade btn-remover" title="Remover">🗑️</button>
+                              </div>
+                          </>
+                      )}
+                  </div>
+              ))}
+          </div>
+            
+          <div className="modal-footer">
+              <button onClick={handleConfirmarSelecaoEquipamentos} className="btn-confirmar">Confirmar Seleção</button>
+          </div>
+      </SelecaoEntidadesModal>
     </div>
   );
 }
+
 
 export default FormularioRelatorio;

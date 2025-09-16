@@ -2,7 +2,10 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import Relatorio, Trabalhador, Equipamento, Foto, Obra, EquipamentoRelatorio
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class TrabalhadorSerializer(serializers.ModelSerializer):
     class Meta:

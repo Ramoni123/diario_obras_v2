@@ -26,7 +26,6 @@ function VisualizarRelatorio({ relatorioId, onVoltarParaListaClick, onEditarClic
   const [error, setError] = useState(null);
   const [imagemSelecionada, setImagemSelecionada] = useState(null)
 
-  // Efeito para buscar os detalhes do relatório na API sempre que o ID mudar
   useEffect(() => {
     if (relatorioId) {
       const fetchRelatorio = async () => {
@@ -59,7 +58,6 @@ function VisualizarRelatorio({ relatorioId, onVoltarParaListaClick, onEditarClic
       fecharFoto();
     }
   }
-  // Renderizações condicionais para os estados de carregamento e erro
   if (loading) {
     return <div className="loading-message">Carregando detalhes do relatório...</div>;
   }
@@ -75,7 +73,6 @@ function VisualizarRelatorio({ relatorioId, onVoltarParaListaClick, onEditarClic
     );
   }
 
-  // Renderização principal do componente com os dados do relatório
   return (
     <div className="visualizar-relatorio">
       <div className="header-visualizar-relatorio">

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import App from '../../App';
 import './FormularioObras.css';
 
-const FormularioObras = ({ onSave, onVoltar, obraParaEditar }) => {
-    // Estado para cada campo do formulário
+const FormularioObras = ({ onSave, onVoltar, obraParaEditar, onVoltarParaObra }) => {
     const [nome, setNome] = useState('');
     const [endereco, setEndereco] = useState('');
     const [descricao, setDescricao] = useState('');
@@ -114,7 +114,7 @@ const FormularioObras = ({ onSave, onVoltar, obraParaEditar }) => {
 
                 <div className="form-actions">
                     <button type="submit" className="btn-salvar">Salvar Obra</button>
-                    <button type="button" onClick={onVoltar} className="btn-cancelar">Cancelar</button>
+                    <button type="button" onClick={onVoltarParaObra} className="btn-cancelar">Cancelar</button>
                 </div>
             </form>
         </div>
